@@ -1,0 +1,12 @@
+{
+ "id": "kdi_285931",
+ "source": "kdi",
+ "keyword": "통화안정증권",
+ "num": "285931",
+ "url": "https://eiec.kdi.re.kr/policy/materialView.do?num=285931",
+ "collected_at": "2026-08-31T13:48:20+0900",
+ "title": "",
+ "body": "",
+ "attachments": [],
+ "error": "HTTPSConnectionPool(host='eiec.kdi.re.kr', port=443): Read timed out. (read timeout=30)"
+}

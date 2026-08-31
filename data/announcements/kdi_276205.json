@@ -1,0 +1,12 @@
+{
+ "id": "kdi_276205",
+ "source": "kdi",
+ "keyword": "국고채",
+ "num": "276205",
+ "url": "https://eiec.kdi.re.kr/policy/materialView.do?num=276205",
+ "collected_at": "2026-08-31T13:47:12+0900",
+ "title": "",
+ "body": "",
+ "attachments": [],
+ "error": "HTTPSConnectionPool(host='eiec.kdi.re.kr', port=443): Read timed out. (read timeout=30)"
+}
