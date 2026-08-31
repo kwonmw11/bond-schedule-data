@@ -1,0 +1,56 @@
+name: bond-monitor
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore: ["data/**"]   # 코드 변경 시 즉시 실행(봇의 데이터 커밋은 제외 → 자기유발 방지)
+  schedule:
+    # (UTC 기준 cron / KST = UTC+9, 평일만)
+    # 10:00~11:59 KST 15분 주기 — 입찰 결과·중도환매 결과(10:40~11:00대 게시) 포착
+    - cron: "*/15 1-2 * * 1-5"
+    # 16:00~17:59 KST 15분 주기 — 익일 실시 정보(16:30)·발행공고(17:00) 포착
+    - cron: "*/15 7-8 * * 1-5"
+    # 그 외 업무시간 정시(09,12,13,14,15,18시 KST)
+    - cron: "0 0,3,4,5,6,9 * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bond-monitor
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Collect announcements
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scraper/main.py
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "bond-data-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A data
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "data: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M KST')"
+            git pull --rebase --autostash origin ${GITHUB_REF_NAME}
+            git push
+          fi
